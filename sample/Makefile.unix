@@ -1,0 +1,14 @@
+MAJOR_VERSION=1
+CFLAGS=
+OFLAGS=
+
+all: 
+	$(CC) $(CFLAGS) $(OFLAGS) -o test_verify test_verify.c -lpdkim$(MAJOR_VERSION)
+	$(CC) $(CFLAGS) $(OFLAGS) -o test_sign test_sign.c -lpdkim$(MAJOR_VERSION)
+
+test: all
+	./test_sign | ./test_verify
+
+clean:
+	rm -f test_verify test_sign
+	

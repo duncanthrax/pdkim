@@ -1,0 +1,60 @@
+PDKIM - a RFC4871 (DKIM) implementation
+http://duncanthrax.net/pdkim/
+Copyright (C) 2009      Tom Kistner <tom@duncanthrax.net>
+
+Includes code from the PolarSSL project.
+http://polarssl.org
+Copyright (C) 2009      Paul Bakker <polarssl_maintainer@polarssl.org>
+Copyright (C) 2006-2008 Christophe Devine
+
+
+
+Building on Unix
+----------------
+
+1) Review Makefile.unix
+
+2) # make -f Makefile.unix install
+
+   This will install static/dynamic libs and the header file,
+   which is a prerequisite for running a test:
+
+3) (OPTIONAL)
+   # cd sample; make -f Makefile.unix test
+  
+Please note that libs and header carry the major version number in
+their names, i.e. "pdkim1.h" or "pkdim1.so.0".
+
+
+
+Building on Windows
+-------------------
+
+Using Visual C/C++ compiler:
+
+1) Open a cmd.exe shell.
+
+2) Run vcvarsall.bat inside that shell. Usually this can be
+   found in the \VC subdir of your VC++ installation.
+
+3) # nmake /f Makefile.win
+
+This will create a static library "pdkim1-static.lib", as well
+as a dynamic pdkim1.lib/pdkim1.dll file pair. The header is
+copied to pdkim1.h. These are no installation locations. Please
+copy the respective files to a location of your choice (or leave
+them where they are ...).
+
+
+
+API Documentation
+-----------------
+
+For signing, read sample/test_sign.c. For verification, read
+sample/test_verify.c
+
+Both have extensive comments covering the API calls. They will
+direct you to read the pdkim1.h file that covers the signature
+structure.
+
+

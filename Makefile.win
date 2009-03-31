@@ -1,0 +1,24 @@
+VERSION_MAJOR=1
+VERSION_MINOR=0
+LIBNAME=pdkim
+
+CFLAGS=-DWINDOWS
+OFLAGS=-Os
+
+OBJS=sha1.obj sha2.obj base64.obj rsa.obj bignum.obj pdkim.obj
+
+.SILENT:
+
+all: static shared
+
+static: $(OBJS)
+	lib /out:$(LIBNAME)$(VERSION_MAJOR)-static.lib $(OBJS)
+	
+shared: static
+	link /DLL /OUT:$(LIBNAME)$(VERSION_MAJOR).dll $(OBJS)
+
+.c.obj:
+	$(CC) $(CFLAGS) $(OFLAGS) -c $<
+
+clean:
+	del /Q *.obj *.exp *.lib pdkim$(VERSION_MAJOR).dll

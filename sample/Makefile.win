@@ -1,0 +1,13 @@
+VERSION_MAJOR=1
+CFLAGS=/I.. /DWINDOWS
+OFLAGS=
+
+all:
+	$(CC) $(CFLAGS) $(OFLAGS) test_verify.c /link ..\pdkim$(VERSION_MAJOR)-static.lib
+	$(CC) $(CFLAGS) $(OFLAGS) test_sign.c /link ..\pdkim$(VERSION_MAJOR)-static.lib
+
+test: all
+	test_sign.exe | test_verify.exe
+
+clean:
+	del /Q *.exp *.lib *.obj *.exe
