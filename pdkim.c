@@ -496,7 +496,7 @@ pdkim_signature *pdkim_parse_sig_header(pdkim_ctx *ctx, char *raw_hdr) {
   p = raw_hdr;
   q = sig->rawsig_no_b_val;
 
-  while (*p != '\0') {
+  while (1) {
 
     /* Ignore FWS */
     if ( (*p == '\r') || (*p == '\n') )
@@ -537,10 +537,10 @@ pdkim_signature *pdkim_parse_sig_header(pdkim_ctx *ctx, char *raw_hdr) {
       if (cur_val == NULL)
         cur_val = pdkim_strnew(NULL);
 
-      if ( (*p == '\r') || (*p == '\n') )
+      if ( (*p == '\r') || (*p == '\n') || (*p == ' ') || (*p == '\t') )
         goto NEXT_CHAR;
 
-      if (*p == ';') {
+      if ( (*p == ';') || (*p == '\0') ) {
         if (cur_tag->len > 0) {
           pdkim_strtrim(cur_val);
           #ifdef PDKIM_DEBUG
@@ -638,6 +638,7 @@ pdkim_signature *pdkim_parse_sig_header(pdkim_ctx *ctx, char *raw_hdr) {
     }
 
     NEXT_CHAR:
+    if (*p == '\0') break;
 
     if (!in_b_val) {
       *q = *p;
@@ -708,7 +709,7 @@ pdkim_pubkey *pdkim_parse_pubkey_record(pdkim_ctx *ctx, char *raw_record) {
 
   p = raw_record;
 
-  while (*p != '\0') {
+  while (1) {
 
     /* Ignore FWS */
     if ( (*p == '\r') || (*p == '\n') )
@@ -742,7 +743,7 @@ pdkim_pubkey *pdkim_parse_pubkey_record(pdkim_ctx *ctx, char *raw_record) {
       if ( (*p == '\r') || (*p == '\n') )
         goto NEXT_CHAR;
 
-      if (*p == ';') {
+      if ( (*p == ';') || (*p == '\0') ) {
         if (cur_tag->len > 0) {
           pdkim_strtrim(cur_val);
           #ifdef PDKIM_DEBUG
@@ -795,6 +796,7 @@ pdkim_pubkey *pdkim_parse_pubkey_record(pdkim_ctx *ctx, char *raw_record) {
     }
 
     NEXT_CHAR:
+    if (*p == '\0') break;
     p++;
   }
 
