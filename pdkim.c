@@ -20,6 +20,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* $Cambridge$ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1372,9 +1374,9 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
       #ifdef PDKIM_DEBUG
       if (ctx->debug_stream) {
         fprintf(ctx->debug_stream, "PDKIM [%s] hh computed: ", sig->domain);
+        pdkim_hexprint(ctx->debug_stream, headerhash, 20, 1);
       }
       #endif
-      pdkim_hexprint(ctx->debug_stream, headerhash, 20, 1);
     }
     else {
       sha2_update(&(sha2_headers),(unsigned char *)sig_hdr,strlen(sig_hdr));
@@ -1382,9 +1384,9 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
       #ifdef PDKIM_DEBUG
       if (ctx->debug_stream) {
         fprintf(ctx->debug_stream, "PDKIM [%s] hh computed: ", sig->domain);
+        pdkim_hexprint(ctx->debug_stream, headerhash, 32, 1);
       }
       #endif
-      pdkim_hexprint(ctx->debug_stream, headerhash, 32, 1);
     }
 
     free(sig_hdr);
