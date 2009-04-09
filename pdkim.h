@@ -305,7 +305,7 @@ int        pdkim_set_optional (pdkim_ctx *, char *, char *,int, int,
                                unsigned long);
 
 DLLEXPORT
-int        ppdkim_feed        (pdkim_ctx *, char *, int);
+int        pdkim_feed         (pdkim_ctx *, char *, int);
 DLLEXPORT
 int        pdkim_feed_finish  (pdkim_ctx *, pdkim_signature **);
 
