@@ -239,7 +239,9 @@ typedef struct pdkim_signature {
   char *rsa_privkey;     /* Private RSA key                             */
   char *sign_headers;    /* To-be-signed header names                   */
   /* Verification specific -------------------------------------------- */
-  int headernames_pos;   /* Current position in header name list        */
+  char *hnames_check;    /* Tick-off header list that we use to keep
+                            track of header names that we have already
+                            added to the signature                      */
   char *rawsig_no_b_val; /* Original signature header w/o b= tag value. */
 } pdkim_signature;
 
