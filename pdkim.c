@@ -1313,7 +1313,7 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
       }
       /* ---------------------------------------------------------------------- */
 
-      if (sig->canon_body == PDKIM_CANON_RELAXED)
+      if (sig->canon_headers == PDKIM_CANON_RELAXED)
         rh = pdkim_relax_header(p->value,1); /* cook header for relaxed canon */
       else
         rh = strdup(p->value);               /* just copy it for simple canon */
