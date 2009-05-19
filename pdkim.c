@@ -442,6 +442,7 @@ char *pdkim_decode_qp(char *str) {
     }
     p++;
   }
+  *q = '\0';
   return n;
 }
 
