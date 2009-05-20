@@ -241,7 +241,7 @@ typedef struct pdkim_signature {
   /* Verification specific -------------------------------------------- */
   char *hnames_check;    /* Tick-off header list that we use to keep
                             track of header names that we have already
-                            added to the signature                      */
+                            added to the signature candidates.          */
   char *rawsig_no_b_val; /* Original signature header w/o b= tag value. */
 } pdkim_signature;
 
