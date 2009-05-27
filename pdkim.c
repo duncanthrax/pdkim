@@ -39,7 +39,7 @@
 
 #define PDKIM_MAX_HEADER_LEN        65536
 #define PDKIM_MAX_HEADERS           512
-#define PDKIM_MAX_BODY_LINE_LEN     1024
+#define PDKIM_MAX_BODY_LINE_LEN     16384
 #define PDKIM_DNS_TXT_MAX_NAMELEN   1024
 #define PDKIM_DEFAULT_SIGN_HEADERS "From:Sender:Reply-To:Subject:Date:"\
                              "Message-ID:To:Cc:MIME-Version:Content-Type:"\
