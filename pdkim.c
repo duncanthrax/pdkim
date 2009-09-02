@@ -162,6 +162,17 @@ pdkim_stringlist *pdkim_append_stringlist(pdkim_stringlist *base, char *str) {
   }
   else return new_entry;
 };
+pdkim_stringlist *pdkim_prepend_stringlist(pdkim_stringlist *base, char *str) {
+  pdkim_stringlist *new_entry = malloc(sizeof(pdkim_stringlist));
+  if (new_entry == NULL) return NULL;
+  memset(new_entry,0,sizeof(pdkim_stringlist));
+  new_entry->value = strdup(str);
+  if (new_entry->value == NULL) return NULL;
+  if (base != NULL) {
+    new_entry->next = base;
+  }
+  return new_entry;
+};
 
 
 /* -------------------------------------------------------------------------- */
@@ -1045,9 +1056,9 @@ int pdkim_header_complete(pdkim_ctx *ctx) {
                             sig->hnames_check, 1) != PDKIM_OK) goto NEXT_SIG;
     }
 
-    /* Add header to the signed headers list */
-    list = pdkim_append_stringlist(sig->headers,
-                                   ctx->cur_header->str);
+    /* Add header to the signed headers list (in reverse order) */
+    list = pdkim_prepend_stringlist(sig->headers,
+                                    ctx->cur_header->str);
     if (list == NULL) return PDKIM_ERR_OOM;
     sig->headers = list;
 
@@ -1337,7 +1348,6 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
     /* When verifying, walk through the header name list in the h= parameter and
        add the headers to the hash in that order. */
     else {
-
       char *b = strdup(sig->headernames);
       char *p = b;
       char *q = NULL;
@@ -1345,38 +1355,32 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
 
       while(1) {
         pdkim_stringlist *hdrs = sig->headers;
-        pdkim_stringlist *cand_hdr = NULL;
         q = strchr(p,':');
         if (q != NULL) *q = '\0';
-        /* We need to find the LAST header in the chain that matches the name.
-           See RFC 4871 Section 5.4 */
         while (hdrs != NULL) {
           if ( (strncasecmp(hdrs->value,p,strlen(p)) == 0) &&
                ((hdrs->value)[strlen(p)] == ':') ) {
-            cand_hdr = hdrs;
+            char *rh = NULL;
+            if (sig->canon_headers == PDKIM_CANON_RELAXED)
+              rh = pdkim_relax_header(hdrs->value,1); /* cook header for relaxed canon */
+            else
+              rh = strdup(hdrs->value);               /* just copy it for simple canon */
+            if (rh == NULL) return PDKIM_ERR_OOM;
+            /* Feed header to the hash algorithm */
+            if (sig->algo == PDKIM_ALGO_RSA_SHA1)
+              sha1_update(&(sha1_headers),(unsigned char *)rh,strlen(rh));
+            else
+              sha2_update(&(sha2_headers),(unsigned char *)rh,strlen(rh));
+            #ifdef PDKIM_DEBUG
+            if (ctx->debug_stream)
+              pdkim_quoteprint(ctx->debug_stream, rh, strlen(rh), 1);
+            #endif
+            free(rh);
+            (hdrs->value)[0] = '_';
+            break;
           }
           hdrs = hdrs->next;
         }
-
-        if (cand_hdr) {
-          char *rh = NULL;
-          if (sig->canon_headers == PDKIM_CANON_RELAXED)
-            rh = pdkim_relax_header(cand_hdr->value,1);
-          else
-            rh = strdup(cand_hdr->value);
-          if (rh == NULL) return PDKIM_ERR_OOM;
-          if (sig->algo == PDKIM_ALGO_RSA_SHA1)
-            sha1_update(&(sha1_headers),(unsigned char *)rh,strlen(rh));
-          else
-            sha2_update(&(sha2_headers),(unsigned char *)rh,strlen(rh));
-          #ifdef PDKIM_DEBUG
-          if (ctx->debug_stream)
-            pdkim_quoteprint(ctx->debug_stream, rh, strlen(rh), 1);
-          #endif
-          free(rh);
-          (cand_hdr->value)[0] = '_';
-        }
-
         if (q == NULL) break;
         p = q+1;
       }
