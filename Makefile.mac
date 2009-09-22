@@ -1,0 +1,43 @@
+PREFIX=/usr
+VERSION_MAJOR=1
+VERSION_MINOR=0
+LIBNAME=libpdkim
+
+CFLAGS=-Wall -D_FILE_OFFSET_BITS=64 -fPIC -arch ppc -arch i386 -arch x86_64
+OFLAGS=-Os
+
+OBJS=sha1.o sha2.o base64.o rsa.o bignum.o pdkim.o
+
+.SILENT:
+
+all: static shared
+
+install: all
+	 echo "Installing lib to $(PREFIX)/lib/, header to $(PREFIX)/include/"
+	 cp -v $(LIBNAME)$(VERSION_MAJOR).a $(PREFIX)/lib/
+	 cp -v $(LIBNAME)$(VERSION_MAJOR).dylib $(PREFIX)/lib/
+	 cp -v pdkim.h $(PREFIX)/include/pdkim$(VERSION_MAJOR).h
+
+uninstall: clean
+	   echo "Removing lib from $(PREFIX)/lib/, header from $(PREFIX)/include/"
+	   rm -f $(PREFIX)/lib/$(LIBNAME)$(VERSION_MAJOR).a
+	   rm -f $(PREFIX)/lib/$(LIBNAME)$(VERSION_MAJOR).so.*
+	   rm -f $(PREFIX)/include/pdkim.h
+
+static: $(OBJS)
+	echo "AR    $(LIBNAME)$(VERSION_MAJOR).a"
+	rm -f $(LIBNAME)$(VERSION_MAJOR).a
+	ar r $(LIBNAME)$(VERSION_MAJOR).a $(OBJS)
+	echo "RL    $(LIBNAME)$(VERSION_MAJOR).a"
+	ranlib $(LIBNAME)$(VERSION_MAJOR).a
+
+shared: static
+	echo "LD    $(LIBNAME)$(VERSION_MAJOR).so.$(VERSION_MINOR)"
+	$(CC) ${CFLAGS} -dynamiclib -o $(LIBNAME)$(VERSION_MAJOR).dylib $(OBJS)
+
+.c.o:
+	echo "CC    $<"
+	$(CC) $(CFLAGS) $(OFLAGS) -c $<
+
+clean:
+	rm -f *.o libpdkim$(VERSION_MAJOR).*
