@@ -366,7 +366,7 @@ char *pdkim_relax_header (char *header, int crlf) {
   int seen_wsp = 0;
   char *p = header;
   char *q;
-  char *relaxed = malloc(strlen(header)+2);
+  char *relaxed = malloc(strlen(header)+3);
   if (relaxed == NULL) return NULL;
   q = relaxed;
   while (*p != '\0') {
