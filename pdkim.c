@@ -864,7 +864,10 @@ int pdkim_update_bodyhash(pdkim_ctx *ctx, char *data, int len) {
         if (relaxed_data == NULL) return PDKIM_ERR_OOM;
         while (*p != '\0') {
           char c = *p;
-          if ( (c == '\t') || (c == ' ') ) {
+          if (c == '\r') {
+            if ( (q > 0) && (relaxed_data[q-1] == ' ') ) q--;
+          }
+          else if ( (c == '\t') || (c == ' ') ) {
             c = ' '; /* Turns WSP into SP */
             if (seen_wsp) {
               p++;
