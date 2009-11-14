@@ -1267,7 +1267,7 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
   /* Check if we must still flush a (partial) header. If that is the
      case, the message has no body, and we must compute a body hash
      out of '<CR><LF>' */
-  if (ctx->cur_header->len) {
+  if (ctx->cur_header && ctx->cur_header->len) {
     int rc = pdkim_header_complete(ctx);
     if (rc != PDKIM_OK) return rc;
     pdkim_update_bodyhash(ctx,"\r\n",2);
