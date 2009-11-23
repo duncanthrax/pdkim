@@ -105,19 +105,6 @@ pdkim_combined_canon_entry pdkim_combined_canons[] = {
 };
 
 
-
-#define PDKIM_VERIFY_NONE      0
-#define PDKIM_VERIFY_INVALID   1
-#define PDKIM_VERIFY_FAIL      2
-#define PDKIM_VERIFY_PASS      3
-
-#define PDKIM_VERIFY_FAIL_BODY                  1
-#define PDKIM_VERIFY_FAIL_MESSAGE               2
-#define PDKIM_VERIFY_INVALID_PUBKEY_UNAVAILABLE 3
-#define PDKIM_VERIFY_INVALID_BUFFER_SIZE        4
-#define PDKIM_VERIFY_INVALID_PUBKEY_PARSING     5
-
-
 char *pdkim_verify_status_str(int status) {
   switch(status) {
     case PDKIM_VERIFY_NONE:    return "PDKIM_VERIFY_NONE";
@@ -137,7 +124,6 @@ char *pdkim_verify_ext_status_str(int ext_status) {
     default: return "PDKIM_VERIFY_UNKNOWN";
   }
 }
-
 
 
 /* -------------------------------------------------------------------------- */
