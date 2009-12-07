@@ -822,7 +822,7 @@ pdkim_pubkey *pdkim_parse_pubkey_record(pdkim_ctx *ctx, char *raw_record) {
               pub->srvtype = strdup(cur_val->str);
             break;
             case 't':
-              if (strchr(cur_val->str,'t') != NULL) pub->testing = 1;
+              if (strchr(cur_val->str,'y') != NULL) pub->testing = 1;
               if (strchr(cur_val->str,'s') != NULL) pub->no_subdomaining = 1;
             break;
             default:
