@@ -1,9 +1,10 @@
 /**
  * \file base64.h
  *
- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
+ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
+ *  All rights reserved.
  *
- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
+ *  Joined copyright on original XySSL code with: Christophe Devine
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +23,8 @@
 #ifndef POLARSSL_BASE64_H
 #define POLARSSL_BASE64_H
 
-#define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL               -0x0010
-#define POLARSSL_ERR_BASE64_INVALID_CHARACTER              -0x0012
+#define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL               0x0010
+#define POLARSSL_ERR_BASE64_INVALID_CHARACTER              0x0012
 
 #ifdef __cplusplus
 extern "C" {

@@ -1494,7 +1494,7 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
 
       if (rsa_pkcs1_sign( &rsa, RSA_PRIVATE,
                           ((sig->algo == PDKIM_ALGO_RSA_SHA1)?
-                             RSA_SHA1:RSA_SHA256),
+                             SIG_RSA_SHA1:SIG_RSA_SHA256),
                           0,
                           (unsigned char *)headerhash,
                           (unsigned char *)sig->sigdata ) != 0) {
@@ -1588,7 +1588,7 @@ DLLEXPORT int pdkim_feed_finish(pdkim_ctx *ctx, pdkim_signature **return_signatu
       if (rsa_pkcs1_verify(&rsa,
                         RSA_PUBLIC,
                         ((sig->algo == PDKIM_ALGO_RSA_SHA1)?
-                             RSA_SHA1:RSA_SHA256),
+                             SIG_RSA_SHA1:SIG_RSA_SHA256),
                         0,
                         (unsigned char *)headerhash,
                         (unsigned char *)sig->sigdata) != 0) {

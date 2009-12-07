@@ -1,9 +1,10 @@
 /*
  *  Multi-precision integer library
  *
- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
+ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
+ *  All rights reserved.
  *
- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
+ *  Joined copyright on original XySSL code with: Christophe Devine
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@
  *  http://www.stillhq.com/extracted/gnupg-api/mpi/
  *  http://math.libtomcrypt.com/files/tommath.pdf
  */
+
 
 #include "bignum.h"
 #include "bn_mul.h"
@@ -282,7 +284,15 @@ int mpi_read_string( mpi *X, int radix, char *s )
 
             MPI_CHK( mpi_get_digit( &d, radix, s[i] ) );
             MPI_CHK( mpi_mul_int( &T, X, radix ) );
-            MPI_CHK( mpi_add_int( X, &T, d ) );
+
+            if( X->s == 1 )
+            {
+                MPI_CHK( mpi_add_int( X, &T, d ) );
+            }
+            else
+            {
+                MPI_CHK( mpi_sub_int( X, &T, d ) );
+            }
         }
     }
 
@@ -370,6 +380,10 @@ int mpi_write_string( mpi *X, int radix, char *s, int *slen )
     else
     {
         MPI_CHK( mpi_copy( &T, X ) );
+
+        if( T.s == -1 )
+            T.s = 1;
+
         MPI_CHK( mpi_write_hlp( &T, radix, &p ) );
     }
 
@@ -671,6 +685,11 @@ int mpi_add_abs( mpi *X, mpi *A, mpi *B )
 
     if( X != A )
         MPI_CHK( mpi_copy( X, A ) );
+   
+    /*
+     * X should always be positive as a result of unsigned additions.
+     */
+    X->s = 1;
 
     for( j = B->n - 1; j >= 0; j-- )
         if( B->p[j] != 0 )
@@ -744,6 +763,11 @@ int mpi_sub_abs( mpi *X, mpi *A, mpi *B )
 
     if( X != A )
         MPI_CHK( mpi_copy( X, A ) );
+
+    /*
+     * X should always be positive as a result of unsigned substractions.
+     */
+    X->s = 1;
 
     ret = 0;
 
@@ -856,7 +880,7 @@ int mpi_sub_int( mpi *X, mpi *A, int b )
 
 /*
  * Helper for mpi multiplication
- */
+ */ 
 static void mpi_mul_hlp( int i, t_int *s, t_int *d, t_int b )
 {
     t_int c = 0, t = 0;
@@ -1158,6 +1182,9 @@ int mpi_mod_mpi( mpi *R, mpi *A, mpi *B )
 {
     int ret;
 
+    if( mpi_cmp_int( B, 0 ) < 0 )
+        return POLARSSL_ERR_MPI_NEGATIVE_VALUE;
+
     MPI_CHK( mpi_div_mpi( NULL, R, A, B ) );
 
     while( mpi_cmp_int( R, 0 ) < 0 )
@@ -1183,7 +1210,7 @@ int mpi_mod_int( t_int *r, mpi *A, int b )
         return( POLARSSL_ERR_MPI_DIVISION_BY_ZERO );
 
     if( b < 0 )
-        b = -b;
+        return POLARSSL_ERR_MPI_NEGATIVE_VALUE;
 
     /*
      * handle trivial cases
@@ -1215,6 +1242,13 @@ int mpi_mod_int( t_int *r, mpi *A, int b )
         z  = y / b;
         y -= z * b;
     }
+
+    /*
+     * If A is negative, then the current y represents a negative value.
+     * Flipping it to the positive side.
+     */
+    if( A->s < 0 && y != 0 )
+        y = b - y;
 
     *r = y;
 
@@ -1362,7 +1396,7 @@ int mpi_exp_mod( mpi *X, mpi *A, mpi *E, mpi *N, mpi *_RR )
 
         for( i = 0; i < wsize - 1; i++ )
             mpi_montmul( &W[j], &W[j], N, mm, &T );
-
+    
         /*
          * W[i] = W[i - 1] * W[1]
          */
@@ -1472,21 +1506,29 @@ cleanup:
  */
 int mpi_gcd( mpi *G, mpi *A, mpi *B )
 {
-    int ret;
+    int ret, lz, lzt;
     mpi TG, TA, TB;
 
     mpi_init( &TG, &TA, &TB, NULL );
 
-    MPI_CHK( mpi_lset( &TG, 1 ) );
     MPI_CHK( mpi_copy( &TA, A ) );
     MPI_CHK( mpi_copy( &TB, B ) );
+
+    lz = mpi_lsb( &TA );
+    lzt = mpi_lsb( &TB );
+
+    if ( lzt < lz )
+        lz = lzt;
+
+    MPI_CHK( mpi_shift_r( &TA, lz ) );
+    MPI_CHK( mpi_shift_r( &TB, lz ) );
 
     TA.s = TB.s = 1;
 
     while( mpi_cmp_int( &TA, 0 ) != 0 )
     {
-        while( ( TA.p[0] & 1 ) == 0 ) MPI_CHK( mpi_shift_r( &TA, 1 ) );
-        while( ( TB.p[0] & 1 ) == 0 ) MPI_CHK( mpi_shift_r( &TB, 1 ) );
+        MPI_CHK( mpi_shift_r( &TA, mpi_lsb( &TA ) ) );
+        MPI_CHK( mpi_shift_r( &TB, mpi_lsb( &TB ) ) );
 
         if( mpi_cmp_mpi( &TA, &TB ) >= 0 )
         {
@@ -1500,7 +1542,8 @@ int mpi_gcd( mpi *G, mpi *A, mpi *B )
         }
     }
 
-    MPI_CHK( mpi_mul_mpi( G, &TG, &TB ) );
+    MPI_CHK( mpi_shift_l( &TB, lz ) );
+    MPI_CHK( mpi_copy( G, &TB ) );
 
 cleanup:
 
@@ -1508,6 +1551,8 @@ cleanup:
 
     return( ret );
 }
+
+#if defined(POLARSSL_GENPRIME)
 
 /*
  * Modular inverse: X = A^-1 mod N  (HAC 14.61 / 14.64)
@@ -1636,7 +1681,11 @@ int mpi_is_prime( mpi *X, int (*f_rng)(void *), void *p_rng )
     mpi W, R, T, A, RR;
     unsigned char *p;
 
-    if( mpi_cmp_int( X, 0 ) == 0 )
+    if( mpi_cmp_int( X, 0 ) == 0 ||
+        mpi_cmp_int( X, 1 ) == 0 )
+        return( POLARSSL_ERR_MPI_NOT_ACCEPTABLE );
+
+    if( mpi_cmp_int( X, 2 ) == 0 )
         return( 0 );
 
     mpi_init( &W, &R, &T, &A, &RR, NULL );
@@ -1809,3 +1858,5 @@ cleanup:
 
     return( ret );
 }
+
+#endif

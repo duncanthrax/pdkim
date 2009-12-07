@@ -1,9 +1,10 @@
 /**
  * \file sha1.h
  *
- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
+ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
+ *  All rights reserved.
  *
- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
+ *  Joined copyright on original XySSL code with: Christophe Devine
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +26,7 @@
 /**
  * \brief          SHA-1 context structure
  */
+
 #ifndef HAVE_SHA1_CONTEXT
 #define HAVE_SHA1_CONTEXT
 typedef struct sha1_context sha1_context;
@@ -39,6 +41,7 @@ struct sha1_context
     unsigned char ipad[64];     /*!< HMAC: inner padding        */
     unsigned char opad[64];     /*!< HMAC: outer padding        */
 };
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,7 +78,7 @@ void sha1_finish( sha1_context *ctx, unsigned char output[20] );
  * \param ilen     length of the input data
  * \param output   SHA-1 checksum result
  */
-void sha1_oneshot( unsigned char *input, int ilen, unsigned char output[20] );
+void sha1( unsigned char *input, int ilen, unsigned char output[20] );
 
 /**
  * \brief          Output = SHA-1( file contents )
