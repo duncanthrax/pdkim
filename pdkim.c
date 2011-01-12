@@ -415,6 +415,7 @@ char *pdkim_relax_header (char *header, int crlf) {
     }
     /* Lowercase header name */
     if (!past_field_name) c = tolower(c);
+    if (seen_wsp) q--;
     *q = c;
     p++;
     q++;
