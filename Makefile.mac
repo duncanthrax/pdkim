@@ -3,7 +3,7 @@ VERSION_MAJOR=1
 VERSION_MINOR=0
 LIBNAME=libpdkim
 
-CFLAGS=-Wall -D_FILE_OFFSET_BITS=64 -fPIC -arch ppc -arch i386 -arch x86_64
+CFLAGS=-Wall -D_FILE_OFFSET_BITS=64 -fPIC -arch i386 -arch x86_64
 OFLAGS=-Os
 
 OBJS=sha1.o sha2.o base64.o rsa.o bignum.o pdkim.o
