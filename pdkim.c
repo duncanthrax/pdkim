@@ -317,6 +317,7 @@ DLLEXPORT void pdkim_free_ctx(pdkim_ctx *ctx) {
   if (ctx) {
     pdkim_free_sig(ctx->sig);
     pdkim_strfree(ctx->cur_header);
+    free(ctx->linebuf);
     free(ctx);
   }
 }
